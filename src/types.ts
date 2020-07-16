@@ -94,6 +94,8 @@ export interface IWsdlBaseOptions {
   wsdl_options?: { [key: string]: any };
   /** set proper headers for SOAP v1.2. */
   forceSoap12Headers?: boolean;
+  /** Replacing soap:Envelope attribute */
+  soapEnvAttr?: IXmlAttribute[];
 }
 
 /** @deprecated use IOptions */
