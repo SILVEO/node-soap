@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.service.com/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="http://www.service.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.service.com/">
+      <s:element name="Counts">
+        <s:complexType />
+      </s:element>
+      <s:element name="CountsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CountsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="CountsSoapIn">
+    <wsdl:part name="parameters" element="tns:Counts" />
+  </wsdl:message>
+  <wsdl:message name="CountsSoapOut">
+    <wsdl:part name="parameters" element="tns:CountsResponse" />
+  </wsdl:message>
+  <wsdl:portType name="CWebServiceSoap">
+    <wsdl:operation name="Counts">
+      <wsdl:input message="tns:CountsSoapIn" />
+      <wsdl:output message="tns:CountsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="CWebServiceSoap" type="tns:CWebServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="Counts">
+      <soap:operation soapAction="http://www.service.com/Counts" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="CWebService">
+    <wsdl:port name="CWebServiceSoap" binding="tns:CWebServiceSoap">
+      <soap:address location="http://localhost:8000/webservice/cwebservice.asmx" />
+    </wsdl:port>
+    <wsdl:port name="CWebServiceSoap12" binding="tns:CWebServiceSoap12">
+      <soap12:address location="http://localhost:8000/webservice/cwebservice.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
