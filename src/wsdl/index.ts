@@ -1279,7 +1279,7 @@ export class WSDL {
     const xmlns = this.definitions.xmlns;
     let str = '';
 
-    if (this.options.soapEnvAttr) {
+    if (this.options.soapEnvAttr && this.options.soapEnvAttr.length > 0) {
       str = '';
       this.options.soapEnvAttr.forEach((el) => {
         str += ` ${el.name}="${el.value}" `;
