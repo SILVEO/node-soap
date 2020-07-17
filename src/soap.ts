@@ -8,7 +8,7 @@ import * as debugBuilder from 'debug';
 import { Client } from './client';
 import * as _security from './security';
 import { Server, ServerType } from './server';
-import { IOptions, IServerOptions, IServices } from './types';
+import { IOptions, IServerOptions, IServices, IXmlAttribute } from './types';
 import { open_wsdl, WSDL } from './wsdl';
 
 const debug = debugBuilder('node-soap:soap');
@@ -99,9 +99,9 @@ export function createClientAsync(url: string, options?: IOptions, endpoint?: st
   });
 }
 
-export function listen(server: ServerType, path: string, services: IServices, wsdl: string, callback?: (err: any, res: any) => void): Server;
+export function listen(server: ServerType, path: string, services: IServices, wsdl: string, callback?: (err: any, res: any) => void, soapEnvAttr?: IXmlAttribute[]): Server;
 export function listen(server: ServerType, options: IServerOptions): Server;
-export function listen(server: ServerType, p2: string | IServerOptions, services?: IServices, xml?: string, callback?: (err: any, res: any) => void): Server {
+export function listen(server: ServerType, p2: string | IServerOptions, services?: IServices, xml?: string, callback?: (err: any, res: any) => void, soapEnvAttr?: IXmlAttribute[]): Server {
   let options: IServerOptions;
   let path: string;
   let uri = '';
@@ -122,6 +122,7 @@ export function listen(server: ServerType, p2: string | IServerOptions, services
       path: p2,
       services: services,
       callback: callback,
+      soapEnvAttr: soapEnvAttr
     };
   }
 

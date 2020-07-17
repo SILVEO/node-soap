@@ -571,11 +571,20 @@ export class Server extends EventEmitter {
       ? 'http://www.w3.org/2003/05/soap-envelope'
       : 'http://schemas.xmlsoap.org/soap/envelope/';
 
-    let xml = '<?xml version="1.0" encoding="utf-8"?>' +
-      '<soap:Envelope xmlns:soap="' + envelopeDefinition + '" ' +
-      encoding +
-      this.wsdl.xmlnsInEnvelope + '>';
-
+    let xml = '<?xml version="1.0" encoding="utf-8"?>';
+    
+    // Overide the attributes completely
+    if (this.wsdl.options.soapEnvAttr) {
+      xml += '<soap:Envelope' + 
+        this.wsdl.xmlnsInEnvelope + '>';
+    }
+    else {
+      // Original behaviour
+      xml += '<soap:Envelope xmlns:soap="' + envelopeDefinition + '" ' +
+        encoding +
+        this.wsdl.xmlnsInEnvelope + '>';
+    }
+    
     headers = headers || '';
 
     if (includeTimestamp) {

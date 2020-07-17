@@ -1152,6 +1152,7 @@ export class WSDL {
     }
 
     this.options.useEmptyTag = !!options.useEmptyTag;
+    this.options.soapEnvAttr = options.soapEnvAttr;
   }
 
   private _processNextInclude(includes: elements.IInclude[], callback) {
@@ -1277,6 +1278,15 @@ export class WSDL {
   private _xmlnsMap(): string {
     const xmlns = this.definitions.xmlns;
     let str = '';
+
+    if (this.options.soapEnvAttr) {
+      str = '';
+      this.options.soapEnvAttr.forEach((el) => {
+        str += ` ${el.name}="${el.value}" `;
+      });
+      return str;
+    }
+
     for (const alias in xmlns) {
       if (alias === '' || alias === TNS_PREFIX) {
         continue;

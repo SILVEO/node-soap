@@ -3,6 +3,7 @@ import * as http from "http";
 import * as fs from "fs";
 import * as path from "path";
 import * as soap from "../../soap";
+import { IXmlAttribute } from "../../soap";
 
 export class MockSoapServer {
 
@@ -68,9 +69,26 @@ export class MockSoapServer {
         this.server = server;
 
         server.listen(port);
+
+        const soapEnvAttr: IXmlAttribute[] = [
+            {
+                name: "xmlns:soap",
+                value: "http://schemas.xmlsoap.org/soap/envelope/"
+
+            },
+            {
+                name: "xmlns:xsi",
+                value: "http://www.w3.org/2001/XMLSchema-instance"
+            },
+            {
+                name: "xmlns:xsd",
+                value: "http://www.w3.org/2001/XMLSchema"
+            }
+        ];
+
         const soapServer = soap.listen(server, "/webservice/cwebservice.asmx", this.soapService, this.wsdl, () => {
             console.info(`Server initialized on ${this.wsdlUrl}`);
-        });
+        }, soapEnvAttr);
 
         soapServer.log = function (type: any, data: any) {
             // type is 'received' or 'replied'
