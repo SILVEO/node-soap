@@ -69,7 +69,6 @@ export class MockSoapServer {
         this.server = server;
 
         server.listen(port);
-
         const soapEnvAttr: IXmlAttribute[] = [
             {
                 name: "xmlns:soap",
@@ -90,6 +89,8 @@ export class MockSoapServer {
             console.info(`Server initialized on ${this.wsdlUrl}`);
         }, soapEnvAttr);
 
+        soapServer.activateDebug(true);
+        
         soapServer.log = function (type: any, data: any) {
             // type is 'received' or 'replied'
             // console.log(type, data);

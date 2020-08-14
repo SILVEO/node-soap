@@ -85,6 +85,7 @@ export class Server extends EventEmitter {
   private enableChunkedEncoding: boolean;
   private soapHeaders: any[];
   private callback?: (err: any, res: any) => void;
+  private debug = false;
 
   constructor(server: ServerType, path: string, services: IServices, wsdl: WSDL, options?: IServerOptions) {
     super();
@@ -173,29 +174,29 @@ export class Server extends EventEmitter {
 
   private _processSoapHeader(soapHeader, name, namespace, xmlns) {
     switch (typeof soapHeader) {
-    case 'object':
-      return this.wsdl.objectToXML(soapHeader, name, namespace, xmlns, true);
-    case 'function':
-      const _this = this;
-      // arrow function does not support arguments variable
-      // tslint:disable-next-line
-      return function() {
-        const result = soapHeader.apply(null, arguments);
+      case 'object':
+        return this.wsdl.objectToXML(soapHeader, name, namespace, xmlns, true);
+      case 'function':
+        const _this = this;
+        // arrow function does not support arguments variable
+        // tslint:disable-next-line
+        return function () {
+          const result = soapHeader.apply(null, arguments);
 
-        if (typeof result === 'object') {
-          return _this.wsdl.objectToXML(result, name, namespace, xmlns, true);
-        } else {
-          return result;
-        }
-      };
-    default:
-      return soapHeader;
+          if (typeof result === 'object') {
+            return _this.wsdl.objectToXML(result, name, namespace, xmlns, true);
+          } else {
+            return result;
+          }
+        };
+      default:
+        return soapHeader;
     }
   }
 
   private _initializeOptions(options: IServerOptions) {
     this.wsdl.options.attributesKey = options.attributesKey || 'attributes';
-    this.onewayOptions.statusCode = this.onewayOptions.responseCode || 200;
+    this.onewayOptions.statusCode = this.onewayOptions.responseCode || 200;
     this.onewayOptions.emptyBody = !!this.onewayOptions.emptyBody;
   }
 
@@ -572,10 +573,10 @@ export class Server extends EventEmitter {
       : 'http://schemas.xmlsoap.org/soap/envelope/';
 
     let xml = '<?xml version="1.0" encoding="utf-8"?>';
-    
+
     // Overide the attributes completely
     if (this.wsdl.options.soapEnvAttr) {
-      xml += '<soap:Envelope' + 
+      xml += '<soap:Envelope' +
         this.wsdl.xmlnsInEnvelope + '>';
     }
     else {
@@ -584,7 +585,7 @@ export class Server extends EventEmitter {
         encoding +
         this.wsdl.xmlnsInEnvelope + '>';
     }
-    
+
     headers = headers || '';
 
     if (includeTimestamp) {
@@ -647,12 +648,18 @@ export class Server extends EventEmitter {
     * Node.js to calculate and send Content-Length header. See
     * nodejs/node#26005.
     */
-
+    if (this.debug && res.connection) {
+      console.debug(`The following message will be sent to ${res.connection.remoteAddress}: \n ${result}`);
+    }
     if (this.enableChunkedEncoding) {
       res.write(result);
       res.end();
     } else {
       res.end(result);
     }
+  }
+
+  public activateDebug(debug: boolean) {
+    this.debug = debug;
   }
 }
