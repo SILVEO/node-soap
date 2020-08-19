@@ -641,7 +641,38 @@ export class Server extends EventEmitter {
     if (statusCode) {
       res.statusCode = statusCode;
     }
+    /*
+    * We unescape the output
+    *  TODO => use escapeXML: false
+    */
+      const xml_special_to_escaped_one_map = {
+        '&': '&amp;',
+        '"': '&quot;',
+        '<': '&lt;',
+        '>': '&gt;'
+      };
 
+      const escaped_one_to_xml_special_map = {
+        '&amp;': '&',
+        '&quot;': '"',
+        '&lt;': '<',
+        '&gt;': '>'
+      };
+
+      function encodeXml(string) {
+          // tslint:disable-next-line: only-arrow-functions
+          return string.replace(/([\&"<>])/g, function(str, item) {
+              return xml_special_to_escaped_one_map[item];
+          });
+      }
+
+      function decodeXml(string) {
+          return string.replace(/(&quot;|&lt;|&gt;|&amp;)/g,
+              // tslint:disable-next-line: only-arrow-functions
+              function(str, item) {
+                  return escaped_one_to_xml_special_map[item];
+          });
+      }
     /*
     * Calling res.write(result) follow by res.end() will cause Node.js to use
     * chunked encoding, while calling res.end(result) directly will cause
@@ -649,13 +680,13 @@ export class Server extends EventEmitter {
     * nodejs/node#26005.
     */
     if (this.debug && res.connection) {
-      console.debug(`The following message will be sent to ${res.connection.remoteAddress}: \n ${result}`);
+      console.debug(`The following message will be sent to ${res.connection.remoteAddress}: \n ${decodeXml(result)}`);
     }
     if (this.enableChunkedEncoding) {
-      res.write(result);
+      res.write(decodeXml(result));
       res.end();
     } else {
-      res.end(result);
+      res.end(decodeXml(result));
     }
   }
 
