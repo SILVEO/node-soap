@@ -87,6 +87,24 @@ export class Server extends EventEmitter {
   private callback?: (err: any, res: any) => void;
   private debug = false;
 
+  /*
+   * We unescape the output
+   *  TODO => use escapeXML: false
+   */
+  private payloadPostProcess = (msg: string): string => {
+    const escaped_one_to_xml_special_map = {
+      '&amp;': '&',
+      '&quot;': '"',
+      '&lt;': '<',
+      '&gt;': '>'
+    };
+    return msg.replace(/(&quot;|&lt;|&gt;|&amp;)/g,
+      // tslint:disable-next-line: only-arrow-functions
+      function (str, item) {
+        return escaped_one_to_xml_special_map[item];
+      });
+  }
+
   constructor(server: ServerType, path: string, services: IServices, wsdl: WSDL, options?: IServerOptions) {
     super();
 
@@ -643,40 +661,27 @@ export class Server extends EventEmitter {
     }
 
     /*
-     * We unescape the output
-     *  TODO => use escapeXML: false
-     */
-    function decodeXml(string) {
-      const escaped_one_to_xml_special_map = {
-        '&amp;': '&',
-        '&quot;': '"',
-        '&lt;': '<',
-        '&gt;': '>'
-      };
-      return string.replace(/(&quot;|&lt;|&gt;|&amp;)/g,
-        // tslint:disable-next-line: only-arrow-functions
-        function (str, item) {
-          return escaped_one_to_xml_special_map[item];
-        });
-    }
-    /*
     * Calling res.write(result) follow by res.end() will cause Node.js to use
     * chunked encoding, while calling res.end(result) directly will cause
     * Node.js to calculate and send Content-Length header. See
     * nodejs/node#26005.
     */
     if (this.debug && res.connection) {
-      console.debug(`The following message will be sent to ${res.connection.remoteAddress}: \n ${decodeXml(result)}`);
+      console.debug(`The following message will be sent to ${res.connection.remoteAddress}: \n ${this.payloadPostProcess(result)}`);
     }
     if (this.enableChunkedEncoding) {
-      res.write(decodeXml(result));
+      res.write(this.payloadPostProcess(result));
       res.end();
     } else {
-      res.end(decodeXml(result));
+      res.end(this.payloadPostProcess(result));
     }
   }
 
   public activateDebug(debug: boolean) {
     this.debug = debug;
+  }
+
+  public setPayloadPostProcess(fn: (msg: string) => string) {
+    this.payloadPostProcess = fn;
   }
 }
