@@ -646,14 +646,13 @@ export class Server extends EventEmitter {
      * We unescape the output
      *  TODO => use escapeXML: false
      */
-    const escaped_one_to_xml_special_map = {
-      '&amp;': '&',
-      '&quot;': '"',
-      '&lt;': '<',
-      '&gt;': '>'
-    };
-
     function decodeXml(string) {
+      const escaped_one_to_xml_special_map = {
+        '&amp;': '&',
+        '&quot;': '"',
+        '&lt;': '<',
+        '&gt;': '>'
+      };
       return string.replace(/(&quot;|&lt;|&gt;|&amp;)/g,
         // tslint:disable-next-line: only-arrow-functions
         function (str, item) {
