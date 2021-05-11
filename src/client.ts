@@ -66,6 +66,7 @@ export class Client extends EventEmitter {
   private SOAPAction: string;
   private streamAllowed: boolean;
   private normalizeNames: boolean;
+  private payloadPostProcess :(msg: string) => string ;
 
   constructor(wsdl: WSDL, endpoint?: string, options?: IOptions) {
     super();
@@ -505,6 +506,9 @@ export class Client extends EventEmitter {
       return;
     }
 
+    if(this.payloadPostProcess)
+      xml = this.payloadPostProcess(xml);
+
     req = this.httpClient.request(location, xml, (err, response, body) => {
       this.lastResponse = body;
       this.lastResponseHeaders = response && response.headers;
@@ -522,5 +526,9 @@ export class Client extends EventEmitter {
     if (req && req.headers && !options.ntlm) { // fixes an issue when req or req.headers is undefined, doesn't apply to ntlm requests
       this.lastRequestHeaders = req.headers;
     }
+  }
+
+  public setPayloadPostProcess(fn: (msg: string) => string) {
+    this.payloadPostProcess = fn;
   }
 }
